@@ -27,4 +27,4 @@ jobs:
       with:
         context: .
         push: true
-        tags: your_username/your_repo:23f1000422
+        tags: RajSingh422/vikramshila:23f1000422
