@@ -16,10 +16,6 @@ COPY nginx.conf /etc/nginx/conf.d/default.conf
 # Only install Python dependencies if needed
 RUN pip3 install requests beautifulsoup4
 
-# Remove the scraper.py related commands
-# RUN python3 scraper.py && \
-#     cp -r /app/* /usr/share/nginx/html/
-
 # Expose port 80
 EXPOSE 80
 
