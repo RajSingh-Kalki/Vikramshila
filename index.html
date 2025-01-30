@@ -96,126 +96,56 @@
         <div class="search-box">
             <input type="text" class="form-control" placeholder="Search pages..." id="searchInput">
         </div>
-        <nav class="nav flex-column" id="navMenu"></nav>
+        <nav class="nav flex-column" id="navMenu">
+            <a class="nav-link active" href="#" data-page="home">Home</a>
+            <a class="nav-link" href="#" data-page="about">About Us</a>
+            <a class="nav-link" href="#" data-page="academic">Academic</a>
+            <a class="nav-link" href="#" data-page="activities">Activities</a>
+            <a class="nav-link" href="#" data-page="staff">Our Staff</a>
+            <a class="nav-link" href="#" data-page="contact">Contact Us</a>
+        </nav>
     </nav>
 
     <main class="content-area">
         <div id="loading" class="text-center py-5">
             <div class="spinner-border text-primary"></div>
         </div>
-        <div id="pageContent" style="display: none;"></div>
+        <div id="pageContent" style="display: none;">
+            <div class="page-card">
+                <h1>Welcome to Vikramshila Academy</h1>
+                <p>Your journey to excellence begins here.</p>
+                <img src="path/to/your/image.jpg" alt="School Image" class="img-fluid content-image">
+            </div>
+        </div>
     </main>
 
     <script>
-        document.addEventListener('DOMContentLoaded', async () => {
+        document.addEventListener('DOMContentLoaded', () => {
             const loading = document.getElementById('loading');
             const pageContent = document.getElementById('pageContent');
-            const navMenu = document.getElementById('navMenu');
-            const searchInput = document.getElementById('searchInput');
+            loading.style.display = 'none';
+            pageContent.style.display = 'block';
 
-            try {
-                const response = await fetch('scraped_data/website_data.json');
-                const pages = await response.json();
-
-                // Render navigation menu
-                const navItems = pages.map((page, index) => {
-                    return `
-                        <a class="nav-link ${index === 0 ? 'active' : ''}" 
-                           href="#" 
-                           data-page="${index}">
-                           <i class="far fa-file-alt me-2"></i>
-                            ${page.title}
-                        </a>
-                    `;
-                }).join('');
-                navMenu.innerHTML = navItems;
-                loading.style.display = 'none';
-                pageContent.style.display = 'block';
-
-                // Initial page load
-                renderPage(pages[0]);
-
-                // Navigation click handler
-                document.querySelectorAll('.nav-link').forEach(link => {
-                    link.addEventListener('click', (e) => {
-                        e.preventDefault();
-                        const pageIndex = e.target.closest('.nav-link').dataset.page;
-                        
-                        // Update active state
-                        document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
-                        e.target.closest('.nav-link').classList.add('active');
-                        
-                        // Render selected page
-                        renderPage(pages[pageIndex]);
-                    });
-                });
-
-                // Search functionality
-                searchInput.addEventListener('input', (e) => {
-                    const query = e.target.value.toLowerCase();
-                    document.querySelectorAll('.nav-link').forEach(link => {
-                        const text = link.textContent.toLowerCase();
-                        link.style.display = text.includes(query) ? 'block' : 'none';
-                    });
-                });
-
-            } catch (error) {
-                loading.innerHTML = `<div class="alert alert-danger">Error loading content: ${error.message}</div>`;
-            }
-
-            function renderPage(page) {
-                let contentHTML = `
-                    <h1 class="mb-4">${page.title}</h1>
-                    <div class="page-card">
-                `;
-
-                page.sections.forEach(section => {
-                    if (section.type === 'heading') {
-                        contentHTML += `<h2 class="mb-3">${section.content}</h2>`;
-                    } else if (section.type === 'text') {
-                        contentHTML += section.content.split('\n')
-                            .map(p => `<p class="mb-3">${p}</p>`)
-                            .join('');
-                    } else if (section.type === 'image') {
-                        contentHTML += `
-                            <img src="${section.src}" 
-                                 alt="${section.alt}" 
-                                 class="img-fluid content-image"
-                                 loading="lazy">
-                        `;
-                    }
-                });
-
-                contentHTML += `</div>`; // Close page-card
-
-                // Add staff section if available
-                if (page.staff && page.staff.length > 0) {
-                    contentHTML += `
+            // Navigation click handler
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const pageIndex = e.target.dataset.page;
+                    
+                    // Update active state
+                    document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
+                    e.target.classList.add('active');
+                    
+                    // Render selected page (for now, just show the home content)
+                    pageContent.innerHTML = `
                         <div class="page-card">
-                            <h3 class="mb-4">Our Team</h3>
-                            <div class="staff-grid">
-                                ${page.staff.map(member => `
-                                    <div class="staff-card">
-                                        <img src="${member.image}" 
-                                             alt="${member.name}" 
-                                             class="img-fluid mb-3"
-                                             style="width: 150px; height: 150px; object-fit: cover; border-radius: 50%">
-                                        <h5>${member.name}</h5>
-                                        <p class="text-muted mb-0">${member.role || 'Faculty Member'}</p>
-                                    </div>
-                                `).join('')}
-                            </div>
+                            <h1>Welcome to Vikramshila Academy</h1>
+                            <p>Your journey to excellence begins here.</p>
+                            <img src="path/to/your/image.jpg" alt="School Image" class="img-fluid content-image">
                         </div>
                     `;
-                }
-
-                pageContent.innerHTML = contentHTML;
-
-                // Lazy load images
-                document.querySelectorAll('img[loading="lazy"]').forEach(img => {
-                    img.src = img.dataset.src;
                 });
-            }
+            });
         });
     </script>
 
