@@ -3,36 +3,222 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vikramshila Academy</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Anil School - Comprehensive Portal</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --text-color: #34495e;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            color: var(--text-color);
+            line-height: 1.7;
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            background: #f8f9fa;
+            border-right: 1px solid #eee;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .content-area {
+            padding: 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .nav-item {
+            margin-bottom: 8px;
+        }
+
+        .nav-link {
+            color: var(--text-color);
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .nav-link:hover {
+            background: #e9ecef;
+        }
+
+        .nav-link.active {
+            background: var(--secondary-color)!important;
+            color: white!important;
+        }
+
+        .page-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .content-image {
+            border-radius: 12px;
+            max-height: 400px;
+            object-fit: cover;
+            margin: 2rem 0;
+        }
+
+        .staff-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .staff-card {
+            text-align: center;
+            padding: 1.5rem;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+
+        .search-box {
+            margin-bottom: 20px;
+        }
+    </style>
 </head>
 <body>
-    <header>
-        <h1>Vikramshila Academy</h1>
-        <nav>
-            <ul>
-                <li><a href="#about">About Us</a></li>
-                <li><a href="#admissions">Admissions</a></li>
-                <li><a href="#contact">Contact</a></li>
-            </ul>
-        </nav>
-    </header>
-    <main>
-        <section id="about">
-            <h2>About Us</h2>
-            <p>Welcome to Vikramshila Academy, a center of excellence in education.</p>
-        </section>
-        <section id="admissions">
-            <h2>Admissions</h2>
-            <p>Information about the admissions process.</p>
-        </section>
-        <section id="contact">
-            <h2>Contact</h2>
-            <p>Contact us at: <!--email_off-->info@vikramshilaacademy.edu<!--/email_off--></p>
-        </section>
+    <nav class="sidebar">
+        <h4 class="mb-3">Anil School</h4>
+        <div class="search-box">
+            <input type="text" class="form-control" placeholder="Search pages..." id="searchInput">
+        </div>
+        <nav class="nav flex-column" id="navMenu"></nav>
+    </nav>
+
+    <main class="content-area">
+        <div id="loading" class="text-center py-5">
+            <div class="spinner-border text-primary"></div>
+        </div>
+        <div id="pageContent" style="display: none;"></div>
     </main>
-    <footer>
-        <p>&copy; 2025 Vikramshila Academy. All rights reserved.</p>
-    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const loading = document.getElementById('loading');
+            const pageContent = document.getElementById('pageContent');
+            const navMenu = document.getElementById('navMenu');
+            const searchInput = document.getElementById('searchInput');
+
+            try {
+                const response = await fetch('scraped_data/website_data.json');
+                const pages = await response.json();
+
+                // Render navigation menu
+                const navItems = pages.map((page, index) => {
+                    return `
+                        <a class="nav-link ${index === 0 ? 'active' : ''}" 
+                           href="#" 
+                           data-page="${index}">
+                           <i class="far fa-file-alt me-2"></i>
+                            ${page.title}
+                        </a>
+                    `;
+                }).join('');
+                navMenu.innerHTML = navItems;
+                loading.style.display = 'none';
+                pageContent.style.display = 'block';
+
+                // Initial page load
+                renderPage(pages[0]);
+
+                // Navigation click handler
+                document.querySelectorAll('.nav-link').forEach(link => {
+                    link.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const pageIndex = e.target.closest('.nav-link').dataset.page;
+                        
+                        // Update active state
+                        document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
+                        e.target.closest('.nav-link').classList.add('active');
+                        
+                        // Render selected page
+                        renderPage(pages[pageIndex]);
+                    });
+                });
+
+                // Search functionality
+                searchInput.addEventListener('input', (e) => {
+                    const query = e.target.value.toLowerCase();
+                    document.querySelectorAll('.nav-link').forEach(link => {
+                        const text = link.textContent.toLowerCase();
+                        link.style.display = text.includes(query) ? 'block' : 'none';
+                    });
+                });
+
+            } catch (error) {
+                loading.innerHTML = `<div class="alert alert-danger">Error loading content: ${error.message}</div>`;
+            }
+
+            function renderPage(page) {
+                let contentHTML = `
+                    <h1 class="mb-4">${page.title}</h1>
+                    <div class="page-card">
+                `;
+
+                page.sections.forEach(section => {
+                    if (section.type === 'heading') {
+                        contentHTML += `<h2 class="mb-3">${section.content}</h2>`;
+                    } else if (section.type === 'text') {
+                        contentHTML += section.content.split('\n')
+                            .map(p => `<p class="mb-3">${p}</p>`)
+                            .join('');
+                    } else if (section.type === 'image') {
+                        contentHTML += `
+                            <img src="${section.src}" 
+                                 alt="${section.alt}" 
+                                 class="img-fluid content-image"
+                                 loading="lazy">
+                        `;
+                    }
+                });
+
+                contentHTML += `</div>`; // Close page-card
+
+                // Add staff section if available
+                if (page.staff && page.staff.length > 0) {
+                    contentHTML += `
+                        <div class="page-card">
+                            <h3 class="mb-4">Our Team</h3>
+                            <div class="staff-grid">
+                                ${page.staff.map(member => `
+                                    <div class="staff-card">
+                                        <img src="${member.image}" 
+                                             alt="${member.name}" 
+                                             class="img-fluid mb-3"
+                                             style="width: 150px; height: 150px; object-fit: cover; border-radius: 50%">
+                                        <h5>${member.name}</h5>
+                                        <p class="text-muted mb-0">${member.role || 'Faculty Member'}</p>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                }
+
+                pageContent.innerHTML = contentHTML;
+
+                // Lazy load images
+                document.querySelectorAll('img[loading="lazy"]').forEach(img => {
+                    img.src = img.dataset.src;
+                });
+            }
+        });
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
