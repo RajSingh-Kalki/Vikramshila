@@ -67,6 +67,11 @@ def scrape_page(url):
                 member['role'] = next_para.get_text(strip=True)
             staff.append(member)
     
+    # Debugging print to verify extracted data
+    print(f"Title: {title}")
+    print(f"Sections: {json.dumps(sections, indent=2)}")
+    print(f"Staff: {json.dumps(staff, indent=2)}")
+    
     return {
         'url': url,
         'title': title,
@@ -82,9 +87,6 @@ def main():
     for page_url in pages:
         page_data = scrape_page(page_url)
         all_data.append(page_data)
-    
-    # Debugging print to verify data
-    print(json.dumps(all_data, indent=2))
     
     with open(os.path.join(OUTPUT_DIR, 'website_data.json'), 'w') as f:
         json.dump(all_data, f)
