@@ -1,23 +1,18 @@
 # Use official nginx image
 FROM nginx:alpine
 
-# Set working directory
-WORKDIR /app
+# Set working directory to the main directory
+WORKDIR /
 
 # Install dependencies for potential future needs
 RUN apk add --no-cache python3 py3-pip
 
-# Copy required files
+# Copy required files to the root directory
 COPY index.html .
-
-# Copy nginx configuration
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Only install Python dependencies if needed
-RUN pip3 install requests beautifulsoup4
-
-# Expose port 80
-EXPOSE 80
+# Expose new port
+EXPOSE 8080
 
 # Start nginx
 CMD ["nginx", "-g", "daemon off;"]
