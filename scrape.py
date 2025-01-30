@@ -26,6 +26,9 @@ def get_all_pages():
 def scrape_page(url):
     print(f"Scraping: {url}")
     response = requests.get(url)
+    if response.status_code == 404:
+        print(f"Page not found: {url}")
+        return None
     soup = BeautifulSoup(response.content, 'html.parser')
     
     # Extract page title
@@ -87,7 +90,8 @@ def main():
     pages = get_all_pages()
     for page_url in pages:
         page_data = scrape_page(page_url)
-        all_data.append(page_data)
+        if page_data:
+            all_data.append(page_data)
     
     with open(os.path.join(OUTPUT_DIR, 'website_data.json'), 'w') as f:
         json.dump(all_data, f)
