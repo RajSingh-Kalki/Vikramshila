@@ -83,6 +83,9 @@ def main():
         page_data = scrape_page(page_url)
         all_data.append(page_data)
     
+    # Debugging print to verify data
+    print(json.dumps(all_data, indent=2))
+    
     with open(os.path.join(OUTPUT_DIR, 'website_data.json'), 'w') as f:
         json.dump(all_data, f)
     
