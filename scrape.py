@@ -29,12 +29,13 @@ def scrape_page(url):
     soup = BeautifulSoup(response.content, 'html.parser')
     
     # Extract page title
-    title = soup.find('h1', class_='wsite-content-title').get_text(strip=True) if soup.find('h1', class_='wsite-content-title') else "Untitled"
+    title_tag = soup.find('h2', class_='wsite-content-title')
+    title = title_tag.get_text(strip=True) if title_tag else "Untitled"
     
     # Extract main content
     sections = []
     for section in soup.select('.wsite-content'):
-        for elem in section.children:
+        for elem in section.descendants:
             if elem.name == 'h2':
                 sections.append({
                     'type': 'heading',
